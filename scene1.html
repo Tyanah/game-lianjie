@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>廉洁文化互动游戏 - 第一幕</title>
+  <link href="https://s2.ssl.qhres2.com/static/56662140ef7d5d03.css" rel="stylesheet">
+  <style>
+html, body { height: 100%; }
+body { font-family: 'Ma Shan Zheng', cursive; background: #e6f7ff; margin: 0; min-height: 100vh; }
+.main-container {
+  max-width: 480px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 32px #00bfff33;
+  padding: 0.6rem 0.2rem 1rem 0.2rem;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  box-sizing: border-box;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+.sketch-title {
+  font-size: 1.5rem;
+  text-align: center;
+  color: #1e90ff;
+  text-shadow: 2px 2px 0 #00bfff;
+  margin-bottom: 0.8rem;
+  margin-top: 0.8rem;
+}
+.panel-title {
+  font-size: 1.1rem;
+  color: #1e90ff;
+  margin-bottom: 0.6rem;
+  text-align: center;
+}
+.panel-content { display: flex; flex-direction: column; gap: 0.6rem; }
+.panel-text {
+  background: #fff;
+  border-radius: 14px;
+  padding: 0.7rem;
+  box-shadow: 0 2px 8px #00bfff22;
+  font-size: 1rem;
+}
+.game-container {
+  width: 100%;
+  height: 150vw;
+  max-height: 90vh;
+  background: #f8fbff;
+  border-radius: 16px;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 0.6rem;
+  box-sizing: border-box;
+  transition: height 0.2s;
+}
+#gameCanvas {
+  touch-action: pan-y !important; /* 允许纵向滑动 */
+  -ms-touch-action: pan-y !important;
+}
+.visible { display: block !important; }
+.btn-hand-drawn {
+  display: inline-block;
+  padding: 0.4rem 1rem;
+  background: linear-gradient(90deg,#00bfff,#1e90ff);
+  color: white;
+  border: none;
+  border-radius: 16px;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 #00bfff44;
+  transition: all 0.3s;
+  margin-top: 0.6rem;
+}
+.btn-hand-drawn:hover { transform: scale(1.05); box-shadow: 4px 4px 0 #00bfff66; }
+.btn-hand-drawn:active { transform: scale(0.98); }
+.game-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: #f0f8ff;
+  color: #1e90ff;
+}
+.footer { text-align: center; color: #888; margin-top: 1.2rem; font-size: 0.9rem; }
+@media (max-width: 600px) {
+  .main-container { max-width: 99vw; padding: 0.2rem 0.05rem 0.6rem 0.05rem; }
+  .sketch-title { font-size: 1.1rem; }
+  .panel-title { font-size: 0.95rem; }
+  .panel-text { font-size: 0.95rem; padding: 0.5rem; }
+  .game-container { height: 150vw; max-height: 90vh; }
+}
+  </style>
+</head>
+<body>
+<div class="main-container">
+  <h1 class="sketch-title">廉洁文化互动游戏</h1>
+  <div class="panel-title">第一幕：诱惑来临</div>
+  <div class="panel-content">
+    <div class="panel-text">
+      <p>春节前夕，窗外飘着雪花，办公室内温暖如春。</p>
+      <p>基层干部张明收到工程商送来的奢侈品礼盒，礼盒中附有一份"合作意向书"，上面赫然写着"回扣比例20%"的字样。</p>
+      <p>正当他犹豫时，手机震动起来——是父亲的未接来电。办公桌上摆放的全家福照片旁，隐约可见妻子病历单的一角...</p>
+    </div>
+    <div class="game-container">
+      <div class="game-placeholder">
+        <p style="font-size:1rem;margin-bottom:0.7rem;">点击下方按钮开始互动体验</p>
+        <button class="btn-hand-drawn" onclick="initGame('FirstScene')">开始第一幕</button>
+      </div>
+      <div id="gameCanvas"></div>
+    </div>
+  </div>
+  <div class="footer">
+    <span>© 2025 廉洁文化互动游戏</span>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+<script>
+function adjustGameContainerHeight() {
+  const container = document.querySelector('.main-container');
+  const gameContainer = document.querySelector('.game-container');
+  if (!container || !gameContainer) return;
+  // 这里不再动态调整高度，直接用CSS的150vw和max-height:90vh
+}
+window.addEventListener('resize', adjustGameContainerHeight);
+window.addEventListener('orientationchange', adjustGameContainerHeight);
+window.addEventListener('DOMContentLoaded', adjustGameContainerHeight);
+</script>
+<script src="state.js"></script>
+<script type="module">
+import { showDialogBox as showStatsBar, showAchievementToast } from './modules/ui.js';
+import { updateNpcFavor, getNpcComment } from './modules/npc.js';
+import { unlockAchievement } from './modules/achievements.js';
+import { unlockCollection } from './modules/collection.js';
+import { showQuizGame, showFindDifferenceGame, showDragSortGame } from './modules/miniGames.js';
+window.loadState && window.loadState();
+let currentGame = null;
+
+function getGameSize() {
+  const container = document.querySelector('.game-container');
+  return {
+    width: container.offsetWidth,
+    height: container.offsetHeight
+  };
+}
+
+function initGame(sceneKey) {
+  if (currentGame) {
+    currentGame.destroy(true);
+    // 清空画布内容，防止残留
+    const gameCanvas = document.getElementById('gameCanvas');
+    if (gameCanvas) gameCanvas.innerHTML = '';
+  }
+  
+  document.querySelector('.game-placeholder').style.display = 'none';
+  const gameCanvas = document.getElementById('gameCanvas');
+  gameCanvas.classList.add('visible');
+  adjustGameContainerHeight();
+  const { width, height } = getGameSize();
+  const config = {
+    input: {
+    activePointers: 3,
+    touch: {
+      capture: false // 关键，允许浏览器原生滚动
+    }
+  },
+    type: Phaser.AUTO,
+    parent: 'gameCanvas',
+    width,
+    height,
+    resolution: window.devicePixelRatio || 1,
+    backgroundColor: '#FFF8DC',
+    physics: { default: 'arcade', arcade: { gravity: { y: 0 }, debug: false } },
+    scene: { preload: preload, create: createFirstScene }
+  };
+  currentGame = new Phaser.Game(config);
+
+  window.onresize = () => {
+    adjustGameContainerHeight();
+    if (currentGame) {
+      currentGame.destroy(true);
+      setTimeout(() => initGame(sceneKey), 100);
+    }
+  };
+}
+window.initGame = initGame;
+
+function preload() {
+  this.load.image('player', 'assets/sprites/player.png');
+  this.load.image('boss', 'assets/sprites/boss.png');
+  this.load.image('office_diff', 'assets/sprites/office_diff.png');
+  this.load.image('gift', 'assets/sprites/gift.png');
+  this.load.image('office', 'assets/sprites/office.png');
+  this.load.image('phone', 'assets/sprites/phone.png');
+  this.load.image('family', 'assets/sprites/family.png');
+  this.load.image('medical', 'assets/sprites/medical.png');
+  this.load.image('doc', 'assets/sprites/doc.png');
+  this.load.audio('bgm', 'assets/audio/bgm.mp3');
+}
+
+function handleChoice(choiceKey, value) {
+  if (!window.gameState.choices) window.gameState.choices = {};
+  if (!window.gameState.choices.scene1) window.gameState.choices.scene1 = {};
+  window.gameState.choices.scene1[choiceKey] = value;
+  window.saveState && window.saveState();
+  if (choiceKey === 'gift' && value === 'accept') {
+    window.gameState.stats.integrity -= 10;
+    updateNpcFavor('leader', -10);
+    unlockAchievement('temptation', '面对诱惑');
+  }
+  if (choiceKey === 'gift' && value === 'reject') {
+    window.gameState.stats.integrity += 10;
+    updateNpcFavor('leader', 10);
+    unlockAchievement('upright', '坚守底线');
+    unlockCollection('motto1');
+  }
+  if (choiceKey === 'phone' && value === 'ignore') {
+    window.gameState.stats.reputation -= 5;
+    updateNpcFavor('father', -10);
+  }
+  if (choiceKey === 'phone' && value === 'call') {
+    window.gameState.stats.reputation += 5;
+    updateNpcFavor('father', 10);
+  }
+}
+
+function createFirstScene() {
+  let canExplore = false;
+  const w = this.cameras.main.width;
+  const h = this.cameras.main.height;
+  let base = Math.min(w, h, 420) * 0.92;
+  if (w < 480) base = base * 0.7;
+
+  // 背景
+  this.add.rectangle(w/2, h/2, w, h, 0xF5DEB3);
+  const officeImg = this.textures.get('office').getSourceImage();
+  const scale = Math.max(w/officeImg.width, h/officeImg.height);
+  this.add.image(w/2, h/2, 'office').setScale(scale);
+
+  // 礼盒
+const gift = this.physics.add.sprite(w*0.7, h*0.5, 'gift').setScale(base/1200*1.0).setDepth(2);
+gift.body.setAllowGravity(false);
+gift.setImmovable(true);
+
+// 添加发光效果
+const giftGlow = this.add.graphics();
+giftGlow.fillStyle(0x00ffff, 0.18);
+giftGlow.fillCircle(gift.x, gift.y, gift.displayHeight * 0.7);
+giftGlow.setDepth(gift.depth - 1);
+
+// 跟随礼物移动和律动
+this.events.on('update', () => {
+  giftGlow.x = gift.x;
+  giftGlow.y = gift.y;
+  giftGlow.clear();
+  giftGlow.fillStyle(0x00ffff, 0.18);
+  giftGlow.fillCircle(0, 0, gift.displayHeight * 0.7);
+});
+
+// 添加律动动画
+this.tweens.add({
+  targets: gift,
+  y: gift.y - w * 0.015,
+  duration: 900,
+  yoyo: true,
+  repeat: -1,
+  ease: 'Sine.easeInOut'
+});
+
+  // 主角
+  const player = this.physics.add.sprite(w*0.2, h*0.8, 'player')
+    .setDisplaySize(base*0.25, base*0.25).setDepth(2);
+  player.body.setCollideWorldBounds(true);
+
+let playerPulseTween = this.tweens.add({
+  targets: player,
+  y: player.y - w * 0.015,
+  duration: 900,
+  yoyo: true,
+  repeat: -1,
+  ease: 'Sine.easeInOut'
+});
+
+  let targetPos = { x: player.x, y: player.y };
+  let moving = false;
+
+  // 点击场景移动
+  let pointerDownTime = 0;
+let pointerDownPos = null;
+
+this.input.on('pointerdown', (pointer) => {
+  pointerDownTime = Date.now();
+  pointerDownPos = { x: pointer.x, y: pointer.y };
+});
+
+this.input.on('pointerup', (pointer) => {
+  // 长按超过350ms或移动距离大于10像素，不触发移动
+  const duration = Date.now() - pointerDownTime;
+  const dist = Phaser.Math.Distance.Between(pointer.x, pointer.y, pointerDownPos.x, pointerDownPos.y);
+  if (dialogMask.visible) return;
+  if (duration < 350 && dist < 10) {
+    targetPos = { x: pointer.worldX, y: pointer.worldY };
+    moving = true;
+    if (playerPulseTween) playerPulseTween.stop();
+  }
+});
+
+  this.events.on('update', () => {
+    if (moving) {
+      const dx = targetPos.x - player.x;
+      const dy = targetPos.y - player.y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      const speed = 220;
+      if (dist > 4) {
+        player.setVelocity(dx/dist * speed, dy/dist * speed);
+      } else {
+        player.setVelocity(0);
+        moving = false;
+      }
+    } else {
+      player.setVelocity(0);
+    }
+  });
+
+  // 对话弹窗
+  let dialogMask = this.add.rectangle(w/2, h/2, w, h, 0x000000, 0.45)
+    .setDepth(10).setVisible(false);
+
+  let dialogBoxGfx = this.add.graphics({ x: 0, y: 0 }).setDepth(11).setVisible(false);
+
+
+  function showDialogBox(heightScale = 1) {
+  dialogBoxGfx.clear();
+  const boxW = Math.min(w * 0.92, 420);
+  const boxH = Math.max(h * 0.28, w * 0.22, 180) * heightScale;
+  const boxR = Math.max(w, h) * 0.04;
+  const boxX = w/2 - boxW/2, boxY = h/2 - boxH/2;
+    dialogBoxGfx.fillStyle(0xffffff, 0.12);
+    dialogBoxGfx.fillRoundedRect(boxX-4, boxY-4, boxW+8, boxH+8, boxR+4);
+    dialogBoxGfx.fillStyle(0x1e90ff, 0.92);
+    dialogBoxGfx.fillRoundedRect(boxX, boxY, boxW, boxH, boxR);
+    dialogBoxGfx.lineStyle(4, 0x00ffff, 0.92);
+    dialogBoxGfx.strokeRoundedRect(boxX, boxY, boxW, boxH, boxR);
+    dialogBoxGfx.setAlpha(0);
+    dialogBoxGfx.setVisible(true);
+    this.tweens.add({ targets: dialogBoxGfx, alpha: 1, duration: 200 });
+
+    // 头像
+    const avatarSize = Math.min(boxH * 0.38, 64);
+    bigPlayer.setDisplaySize(avatarSize, avatarSize)
+      .setPosition(boxX + boxW*0.22, boxY + boxH*0.78);
+    bigBoss.setDisplaySize(avatarSize, avatarSize)
+      .setPosition(boxX + boxW*0.78, boxY + boxH*0.78);
+
+    // 文字
+    dialogText.setFontSize(Math.round(boxH*0.10)+'px');
+    dialogText.setWordWrapWidth(boxW * 0.82);
+    dialogText.setPosition(w/2, boxY + boxH/2);
+  }
+
+  function hideDialogBox() { dialogBoxGfx.setVisible(false); }
+
+  let dialogText = this.add.text(w/2, h/2, '', {
+    fontSize: Math.round(w*0.025)+'px',
+    fill: '#fff',
+    fontFamily: 'Ma Shan Zheng',
+    align: 'center',
+    wordWrap: { width: w*0.7 },
+    lineSpacing: 6,
+    shadow: { offsetX: 0, offsetY: 2, color: '#00ffff', blur: 8, fill: true }
+  }).setOrigin(0.5, 0.5).setDepth(12).setVisible(false);
+
+  let bigPlayer = this.add.sprite(w/2, h/2, 'player')
+    .setDisplaySize(w*0.11, w*0.11).setDepth(13).setVisible(false);
+
+  let bigBoss = this.add.sprite(w/2, h/2, 'boss')
+    .setDisplaySize(w*0.11, w*0.11).setDepth(13).setVisible(false);
+
+  // 剧情触发
+  let acceptBtn, rejectBtn;
+  let hasPlayed = false;
+
+  this.physics.add.overlap(player, gift, () => {
+    let clues = { gift: false, phone: false, family: false, doc: false, medical: false };
+    if (dialogMask.visible || hasPlayed) return;
+    if (gift._pulseTween) gift._pulseTween.stop && gift._pulseTween.stop();
+if (giftGlow) giftGlow.setVisible(false);
+    hasPlayed = true;
+    dialogMask.setVisible(true);
+    showDialogBox.call(this);
+    dialogText.setVisible(true);
+    bigPlayer.setVisible(true);
+    bigBoss.setVisible(true);
+    player.setVisible(false);
+    gift.setVisible(false);
+
+    const boxW = w * 0.92, boxH = Math.max(h * 0.28, w * 0.22);
+    const boxX = w/2 - boxW/2, boxY = h/2 - boxH/2;
+
+    // 线索图片全部放在对话框下方一行
+    const clueImgs = [
+      { key: 'gift',    img: 'gift',    text: '礼盒里有一份“合作意向书”\n写着“回扣比例20%”。' },
+      { key: 'doc',     img: 'doc',     text: '病历单显示妻子需要手术，费用高昂。' },
+      { key: 'phone',   img: 'phone',   text: '父亲的未接来电，或许有急事。' },
+      { key: 'family',  img: 'family',  text: '全家福照片提醒你家庭的重要。' },
+      { key: 'medical', img: 'medical', text: '医疗单据让你感受到经济压力。' }
+    ];
+    const imgMaxH = boxH * 0.18;
+    const imgAreaW = boxW * 0.92;
+    const imgGap = imgAreaW / (clueImgs.length + 1);
+    const imgY = boxY + boxH + imgMaxH * 2.0;
+    const allImgs = [];
+    clueImgs.forEach((item, idx) => {
+      let img = this.add.image(
+        boxX + boxW*0.04 + imgGap * (idx + 1),
+        imgY,
+        item.img
+      ).setDepth(15).setAlpha(1).setInteractive();
+      const tex = this.textures.get(item.img).getSourceImage();
+      if (tex && tex.height) {
+        img.setScale(imgMaxH / tex.height);
+      } else {
+        img.setScale(0.13);
+      }
+      allImgs.push(img);
+      img.on('pointerdown', () => {
+        if (!canExplore) return;
+        const firstTime = !clues[item.key];
+        clues[item.key] = true;
+        showClueDialogWithZoom.call(this, img, item.text, firstTime);
+      });
+    });
+
+    // 光晕特效
+    allImgs.forEach((img, i) => {
+      let glow = img.scene.add.graphics();
+      glow.fillStyle(0x00ffff, 0.13);
+      glow.fillCircle(img.x, img.y, boxH*0.13 + i*2);
+      glow.setDepth(img.depth-1);
+      img.on('destroy', ()=>glow.destroy());
+      img.on('pointermove', ()=>{glow.setPosition(img.x, img.y);});
+      img.on('pointerover', ()=>glow.setAlpha(0.3));
+      img.on('pointerout', ()=>glow.setAlpha(0.13));
+    });
+
+    // 律动动画
+    allImgs.forEach((img, i) => {
+      img._pulseTween = this.tweens.add({
+        targets: img,
+        scale: { from: img.scale, to: img.scale*1.08 },
+        y: img.y-w*0.008,
+        duration: 900,
+        yoyo: true,
+        repeat: -1,
+        delay: i*200
+      });
+    });
+
+    function showClueDialogWithZoom(img, text, firstTime) {
+      if (img._pulseTween) img._pulseTween.pause();
+      const origX = img.x, origY = img.y, origScale = img.scale;
+      const maxScale = Math.min(w, h) * 0.35 / img.displayWidth;
+      this.tweens.add({
+        targets: img,
+        x: w/2,
+        y: h/2,
+        scale: Math.min(origScale * 2.2, maxScale),
+        duration: 200,
+        onComplete: () => {
+          let clueMask = this.add.rectangle(w/2, h/2, w, h, 0x000000, 0.22)
+            .setDepth(30).setInteractive();
+          let clueBox = this.add.graphics({ x: 0, y: 0 }).setDepth(31);
+          clueBox.fillStyle(0x1e90ff, 0.92);
+          clueBox.fillRoundedRect(w/2-w*0.38, h/2+w*0.14, w*0.76, w*0.14, w*0.04);
+          let clueText = this.add.text(w/2, h/2+w*0.21, text, {
+            fontSize: Math.round(w*0.045)+'px',
+            fill: '#fff',
+            fontFamily: 'Ma Shan Zheng',
+            align: 'center',
+            wordWrap: { width: w*0.7 }
+          }).setOrigin(0.5).setDepth(32);
+
+          clueMask.on('pointerdown', () => {
+            clueMask.destroy();
+            clueBox.destroy();
+            clueText.destroy();
+            this.tweens.add({
+              targets: img,
+              x: origX,
+              y: origY,
+              scale: origScale,
+              duration: 200,
+              onComplete: () => {
+                if (img._pulseTween) img._pulseTween.resume();
+                if (firstTime) tryShowChoice.call(this);
+              }
+            });
+          });
+        }
+      });
+    }
+
+    // 剧情分步推进
+    let step = 0;
+    const dialogArr = [
+      '工程商：张干部，这是一点小意思',
+      '春节快到了，希望以后多多关照',
+      '张明：这不合适吧，我不能收',
+      '工程商：您放心，这里面都写清楚了',
+      '只要咱们合作，好处少不了您的',
+      '你要接受礼盒吗？'
+    ];
+
+    function tryShowChoice() {
+      if (Object.values(clues).every(v=>v)) {
+        dialogMask.setVisible(true);
+        showDialogBox.call(this);
+        dialogText.setVisible(true);
+         dialogText.setFontSize(Math.round(boxH*0.09)+'px'); // 更小
+        dialogText.setText('你已了解所有情况，现在你要接受礼盒吗？');
+        dialogText.setWordWrapWidth(w*0.7);
+        if (acceptBtn) { acceptBtn.destroy(); acceptBtn = null; }
+        if (rejectBtn) { rejectBtn.destroy(); rejectBtn = null; }
+
+        acceptBtn = this.add.text(w/2-w*0.15, h/2+w*0.08, '接受礼盒', {
+          fontSize: Math.round(w*0.032)+'px', 
+          fill: '#fff', 
+          backgroundColor: '#00bfff', 
+          padding: { x: w*0.025, y: w*0.012 }
+        }).setDepth(18).setInteractive();
+
+        rejectBtn = this.add.text(w/2+w*0.05, h/2+w*0.08, '拒绝礼盒', {
+          fontSize: Math.round(w*0.032)+'px', 
+          fill: '#fff', 
+          backgroundColor: '#555', 
+          padding: { x: w*0.025, y: w*0.012 }
+        }).setDepth(18).setInteractive();
+
+        acceptBtn.on('pointerdown', () => {
+          handleChoice('gift', 'accept');
+          updateStats();
+          if (acceptBtn) { acceptBtn.destroy(); acceptBtn = null; }
+          if (rejectBtn) { rejectBtn.destroy(); rejectBtn = null; }
+          dialogText.setFontSize(Math.round(boxH*0.09)+'px'); // 更小
+          dialogText.setText('你收下了礼盒。\n' +  getNpcComment('leader') + '\n此时，父亲的电话又来了，你会？');
+          showPhoneChoice.call(this);
+          showAchievementToast(this, '成就解锁：面对诱惑');
+        });
+        rejectBtn.on('pointerdown', () => {
+          handleChoice('gift', 'reject');
+          updateStats();
+          if (acceptBtn) { acceptBtn.destroy(); acceptBtn = null; }
+          if (rejectBtn) { rejectBtn.destroy(); rejectBtn = null; }
+          dialogText.setFontSize(Math.round(boxH*0.09)+'px'); // 更小
+          dialogText.setText('你拒绝了礼盒。\n' + getNpcComment('leader') + '\n此时，父亲的电话又来了，你会？');
+          showPhoneChoice.call(this);
+          showAchievementToast(this, '成就解锁：坚守底线');
+        });
+      }
+    }
+
+    const nextStep = () => {
+      step++;
+      dialogText.setText('');
+      dialogText.setPosition(w/2, h/2).setOrigin(0.5, 0.5);
+
+      if (step >= 1 && step <= dialogArr.length) {
+        dialogText.setText(dialogArr[step - 1]);
+        setTimeout(nextStep, 1500);
+      } else {
+        dialogText.setText('请点击桌面物品，探索全部线索！');
+        dialogText.setWordWrapWidth(w*0.7);
+        dialogText.setVisible(true);
+        this.time.delayedCall(900, () => {
+          dialogText.setVisible(false);
+          dialogMask.setVisible(false);
+          hideDialogBox();
+          canExplore = true;
+        });
+      }
+    };
+
+    nextStep();
+
+    dialogText.setWordWrapWidth(w*0.5);
+  });
+
+  function showPhoneChoice() {
+    if (window.btnCall) { window.btnCall.destroy(); window.btnCall = null; }
+    if (window.btnIgnore) { window.btnIgnore.destroy(); window.btnIgnore = null; }
+
+    window.btnCall = this.add.text(w/2-w*0.13, h/2+w*0.16, '回电话', {
+      fontSize: Math.round(w*0.032)+'px', fill: '#fff', backgroundColor: '#00bfff', padding: { x: w*0.025, y: w*0.012 }
+    }).setDepth(18).setInteractive();
+    window.btnIgnore = this.add.text(w/2+w*0.03, h/2+w*0.16, '忽略', {
+      fontSize: Math.round(w*0.032)+'px', fill: '#fff', backgroundColor: '#555', padding: { x: w*0.025, y: w*0.012 }
+    }).setDepth(18).setInteractive();
+
+    window.btnCall.on('pointerdown', () => {
+      handleChoice('phone', 'call');
+      updateStats();
+      if (window.btnCall) { window.btnCall.destroy(); window.btnCall = null; }
+      if (window.btnIgnore) { window.btnIgnore.destroy(); window.btnIgnore = null; }
+      dialogText.setText('你接通了父亲的电话。\n' + getNpcComment('father'));
+      this.time.delayedCall(900, () => {
+        dialogText.setText('');
+        dialogText.setVisible(false);
+        bigPlayer.setVisible(false);
+          bigBoss.setVisible(false);
+        showDialogBox.call(this,1.8);
+        showQuizGame(this, (score) => {
+          showFindGame.call(this, score);
+        });
+      });
+    });
+    window.btnIgnore.on('pointerdown', () => {
+      handleChoice('phone', 'ignore');
+      updateStats();
+      if (window.btnCall) { window.btnCall.destroy(); window.btnCall = null; }
+      if (window.btnIgnore) { window.btnIgnore.destroy(); window.btnIgnore = null; }
+      dialogText.setText('你没有接父亲的电话。\n' + getNpcComment('father'));
+      this.time.delayedCall(900, () => {
+        dialogText.setText('');
+        dialogText.setVisible(false);
+        bigPlayer.setVisible(false);
+          bigBoss.setVisible(false);
+        showDialogBox.call(this,1.8);
+        showQuizGame(this, (score) => {
+          showFindGame.call(this, score);
+        });
+      });
+    });
+  }
+
+  function showFindGame(score) {
+    dialogText.setVisible(true);
+    showFindDifferenceGame(this, (findScore) => {
+      if (findScore === 3) {
+        window.gameState.stats.courage += 5;
+        unlockCollection('person1');
+        showAchievementToast(this, '收集解锁：包拯');
+      }
+      showSortGame.call(this, score);
+    });
+  }
+
+  function showSortGame(score) {
+    showDialogBox.call(this,1.8);
+    showDragSortGame(this, (isCorrect) => {
+      if (isCorrect) {
+        window.gameState.stats.integrity += 5;
+        unlockCollection('motto2');
+        showAchievementToast(this, '收集解锁：克己奉公');
+      }
+      showExclamAndGotoNext.call(this, score);
+    });
+  }
+
+  function showExclamAndGotoNext(score) {
+    dialogMask.setVisible(false);
+    hideDialogBox();
+    dialogText.setVisible(false);
+    bigPlayer.setVisible(false);
+    bigBoss.setVisible(false);
+    if (acceptBtn) acceptBtn.destroy();
+    if (rejectBtn) rejectBtn.destroy();
+  
+    if (typeof score === 'number') {
+      if (score >= 2) {
+        window.gameState.stats.wisdom += 5;
+        unlockAchievement('quizmaster', '答题达人');
+        showAchievementToast(this, '成就解锁：答题达人');
+      }
+    }
+    window.saveState && window.saveState();
+    this.time.delayedCall(700, () => {
+      //exclamIcon.destroy();
+      window.location.href = 'scene2.html';
+    });
+  }
+
+  // 属性条显示与更新
+  let statsText = this.add.text(16, 16,
+  `廉洁值:${window.gameState.stats.integrity}\n声望:${window.gameState.stats.reputation}\n智慧:${window.gameState.stats.wisdom}\n勇气:${window.gameState.stats.courage}`,
+  {
+    fontSize: Math.round(w*0.045)+'px',
+    fill: '#1e90ff',
+    fontFamily: 'Ma Shan Zheng',
+    align: 'left',
+    backgroundColor: 'rgba(255,255,255,0.7)',
+    padding: { x: 10, y: 8 }
+  }
+).setOrigin(0, 0).setDepth(50);
+
+// 保持 updateStats 不变
+function updateStats() {
+  statsText.setText(
+    `廉洁值:${window.gameState.stats.integrity}\n声望:${window.gameState.stats.reputation}\n智慧:${window.gameState.stats.wisdom}\n勇气:${window.gameState.stats.courage}`
+  );
+  window.saveState && window.saveState();
+}
+}
+</script>
+</body>
+</html>

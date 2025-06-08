@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>廉洁文化互动游戏 - 第三幕</title>
+  <link href="https://s2.ssl.qhres2.com/static/56662140ef7d5d03.css" rel="stylesheet">
+  <style>
+html, body { height: 100%; }
+body { font-family: 'Ma Shan Zheng', cursive; background: #e6f7ff; margin: 0; min-height: 100vh; }
+.main-container {
+  max-width: 480px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 32px #00bfff33;
+  padding: 0.6rem 0.2rem 1rem 0.2rem;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  box-sizing: border-box;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+.sketch-title {
+  font-size: 1.5rem;
+  text-align: center;
+  color: #1e90ff;
+  text-shadow: 2px 2px 0 #00bfff;
+  margin-bottom: 0.8rem;
+  margin-top: 0.8rem;
+}
+.panel-title {
+  font-size: 1.1rem;
+  color: #1e90ff;
+  margin-bottom: 0.6rem;
+  text-align: center;
+}
+.panel-content { display: flex; flex-direction: column; gap: 0.6rem; }
+.panel-text {
+  background: #fff;
+  border-radius: 14px;
+  padding: 0.7rem;
+  box-shadow: 0 2px 8px #00bfff22;
+  font-size: 1rem;
+}
+.game-container {
+  width: 100%;
+  height: 150vw;
+  max-height: 90vh;
+  background: #f8fbff;
+  border-radius: 16px;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 0.6rem;
+  box-sizing: border-box;
+  transition: height 0.2s;
+}
+#gameCanvas {
+  touch-action: pan-y !important;
+  -ms-touch-action: pan-y !important;
+}
+.visible { display: block !important; }
+.btn-hand-drawn {
+  display: inline-block;
+  padding: 0.4rem 1rem;
+  background: linear-gradient(90deg,#00bfff,#1e90ff);
+  color: white;
+  border: none;
+  border-radius: 16px;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 #00bfff44;
+  transition: all 0.3s;
+  margin-top: 0.6rem;
+}
+.btn-hand-drawn:hover { transform: scale(1.05); box-shadow: 4px 4px 0 #00bfff66; }
+.btn-hand-drawn:active { transform: scale(0.98); }
+.game-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: #f0f8ff;
+  color: #1e90ff;
+}
+.footer { text-align: center; color: #888; margin-top: 1.2rem; font-size: 0.9rem; }
+@media (max-width: 600px) {
+  .main-container { max-width: 99vw; padding: 0.2rem 0.05rem 0.6rem 0.05rem; }
+  .sketch-title { font-size: 1.1rem; }
+  .panel-title { font-size: 0.95rem; }
+  .panel-text { font-size: 0.95rem; padding: 0.5rem; }
+  .game-container { height: 150vw; max-height: 90vh; }
+}
+  </style>
+</head>
+<body>
+<div class="main-container">
+  <h1 class="sketch-title">廉洁文化互动游戏</h1>
+  <div class="panel-title">第三幕：坚守与荣誉</div>
+  <div class="panel-content">
+    <div class="panel-text">
+      <p>风波过后，张明的坚持逐渐被大家认可。</p>
+      <p>他获得了“廉洁楷模”荣誉，也收获了同事和家人的理解。</p>
+      <p>但人生的考验远未结束……</p>
+    </div>
+    <div class="game-container">
+      <div class="game-placeholder">
+        <p style="font-size:1rem;margin-bottom:0.7rem;">点击下方按钮开启第三幕</p>
+        <button class="btn-hand-drawn" onclick="initGame('ThirdScene')">开始第三幕</button>
+      </div>
+      <div id="gameCanvas"></div>
+    </div>
+  </div>
+  <div class="footer">
+    <span>© 2025 廉洁文化互动游戏</span>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+<script src="state.js"></script>
+<script type="module">
+import { showStatsBar, showAchievementToast } from './modules/ui.js';
+import { unlockAchievement } from './modules/achievements.js';
+import { unlockCollection } from './modules/collection.js';
+window.loadState && window.loadState();
+let currentGame = null;
+
+function getGameSize() {
+  const container = document.querySelector('.game-container');
+  return {
+    width: container.offsetWidth,
+    height: container.offsetHeight
+  };
+}
+
+function initGame(sceneKey) {
+  if (currentGame) currentGame.destroy(true);
+  document.querySelector('.game-placeholder').style.display = 'none';
+  const gameCanvas = document.getElementById('gameCanvas');
+  gameCanvas.classList.add('visible');
+  const { width, height } = getGameSize();
+  const config = {
+    input: {
+      activePointers: 3,
+      touch: { capture: false }
+    },
+    type: Phaser.AUTO,
+    parent: 'gameCanvas',
+    width,
+    height,
+    resolution: window.devicePixelRatio || 1,
+    backgroundColor: '#F0F8FF',
+    physics: { default: 'arcade', arcade: { gravity: { y: 0 }, debug: false } },
+    scene: { preload: preload, create: createThirdScene }
+  };
+  currentGame = new Phaser.Game(config);
+
+  window.onresize = () => {
+    if (currentGame) {
+      currentGame.destroy(true);
+      setTimeout(() => initGame(sceneKey), 100);
+    }
+  };
+}
+window.initGame = initGame;
+
+function preload() {
+  this.load.image('player', 'assets/sprites/player.png');
+  this.load.image('family', 'assets/sprites/family.png');
+  this.load.image('office', 'assets/sprites/office.png');
+  this.load.image('awardMedal', 'assets/sprites/awardMedal.png');
+  this.load.image('npc3', 'assets/sprites/npc3.png');
+  this.load.audio('award', 'assets/audio/award.mp3');
+  this.load.audio('bgm', 'assets/audio/bgm.mp3');
+  this.load.image('leader', 'assets/sprites/leader.png');
+  this.load.image('family_one', 'assets/sprites/family_one.png');
+this.load.image('baozheng', 'assets/sprites/baozheng.png');
+}
+
+function createThirdScene() {
+  const w = this.cameras.main.width;
+  const h = this.cameras.main.height;
+  let base = Math.min(w, h, 420) * 0.92;
+  if (w < 480) base = base * 0.7;
+
+  // 背景
+  this.add.rectangle(w/2, h/2, w, h, 0xF5DEB3);
+  const officeImg = this.textures.get('office').getSourceImage();
+  const scale = Math.max(w/officeImg.width, h/officeImg.height);
+  this.add.image(w/2, h/2, 'office').setScale(scale);
+
+  // 主角
+  const player = this.physics.add.sprite(w*0.2, h*0.8, 'player')
+    .setDisplaySize(base*0.22, base*0.22).setDepth(2);
+  player.body.setCollideWorldBounds(true);
+
+  // 家人
+  const family = this.physics.add.sprite(w*0.5, h*0.5, 'family').setScale(0.22).setDepth(2);
+  family.body.setAllowGravity(false);
+  family.setImmovable(true);
+
+  // 同事NPC
+  const npc3 = this.physics.add.sprite(w*0.55, h*0.8, 'npc3').setScale(0.18).setDepth(2);
+
+  // 领导
+  //const leader = this.physics.add.sprite(w*0.7, h*0.3, 'leader').setScale(0.18).setDepth(2);
+
+  // 属性条
+  let statsText = this.add.text(16, 16,
+    `廉洁值:${window.gameState.stats.integrity}\n声望:${window.gameState.stats.reputation}\n智慧:${window.gameState.stats.wisdom}\n勇气:${window.gameState.stats.courage}`,
+    {
+      fontSize: Math.round(w*0.045)+'px',
+      fill: '#1e90ff',
+      fontFamily: 'Ma Shan Zheng',
+      align: 'left',
+      backgroundColor: 'rgba(255,255,255,0.7)',
+      padding: { x: 10, y: 8 }
+    }
+  ).setOrigin(0, 0).setDepth(50);
+
+  function updateStats() {
+    statsText.setText(
+      `廉洁值:${window.gameState.stats.integrity}\n声望:${window.gameState.stats.reputation}\n智慧:${window.gameState.stats.wisdom}\n勇气:${window.gameState.stats.courage}`
+    );
+    window.saveState && window.saveState();
+  }
+
+  // 对话弹窗
+  let dialogMask = this.add.rectangle(w/2, h/2, w, h, 0x000000, 0.45)
+    .setDepth(10).setVisible(false);
+
+  let dialogBoxGfx = this.add.graphics({ x: 0, y: 0 }).setDepth(11).setVisible(false);
+
+  function showDialogBox(heightScale = 1) {
+    dialogBoxGfx.clear();
+    const boxW = Math.min(w * 0.92, 420);
+    const boxH = Math.max(h * 0.28, w * 0.22, 180) * heightScale;
+    const boxR = Math.max(w, h) * 0.04;
+    const boxX = w/2 - boxW/2, boxY = h/2 - boxH/2;
+    dialogBoxGfx.fillStyle(0xffffff, 0.12);
+    dialogBoxGfx.fillRoundedRect(boxX-4, boxY-4, boxW+8, boxH+8, boxR+4);
+    dialogBoxGfx.fillStyle(0x1e90ff, 0.92);
+    dialogBoxGfx.fillRoundedRect(boxX, boxY, boxW, boxH, boxR);
+    dialogBoxGfx.lineStyle(4, 0x00ffff, 0.92);
+    dialogBoxGfx.strokeRoundedRect(boxX, boxY, boxW, boxH, boxR);
+    dialogBoxGfx.setAlpha(0);
+    dialogBoxGfx.setVisible(true);
+    this.tweens.add({ targets: dialogBoxGfx, alpha: 1, duration: 200 });
+
+    // 头像位置和大小
+    const avatarSize = Math.min(boxH * 0.38, 64);
+    bigPlayer.setDisplaySize(avatarSize, avatarSize)
+      .setPosition(boxX + boxW*0.22, boxY + boxH*1.2);
+    bigFamily.setDisplaySize(avatarSize, avatarSize)
+      .setPosition(boxX + boxW*0.78, boxY + boxH*1.2);
+
+    dialogText.setFontSize(Math.round(boxH*0.10)+'px');
+    dialogText.setWordWrapWidth(boxW * 0.82);
+    dialogText.setPosition(w/2, boxY + boxH/2);
+  }
+  function hideDialogBox() { dialogBoxGfx.setVisible(false); }
+
+  let dialogText = this.add.text(w/2, h/2, '', {
+    fontSize: Math.round(w*0.025)+'px',
+    fill: '#fff',
+    fontFamily: 'Ma Shan Zheng',
+    align: 'center',
+    wordWrap: { width: w*0.7 },
+    lineSpacing: 6,
+    shadow: { offsetX: 0, offsetY: 2, color: '#00ffff', blur: 8, fill: true }
+  }).setOrigin(0.5, 0.5).setDepth(12).setVisible(false);
+
+  let bigPlayer = this.add.sprite(w/2, h/2, 'player')
+    .setDisplaySize(w*0.11, w*0.11).setDepth(13).setVisible(false);
+
+  let bigFamily = this.add.sprite(w/2, h/2, 'family')
+    .setDisplaySize(w*0.11, w*0.11).setDepth(13).setVisible(false);
+
+  // 点击移动主角
+  let targetPos = { x: player.x, y: player.y };
+  let moving = false;
+  let pointerDownTime = 0;
+  let pointerDownPos = null;
+
+  this.input.on('pointerdown', (pointer) => {
+    pointerDownTime = Date.now();
+    pointerDownPos = { x: pointer.x, y: pointer.y };
+  });
+
+  this.input.on('pointerup', (pointer) => {
+    const duration = Date.now() - pointerDownTime;
+    const dist = Phaser.Math.Distance.Between(pointer.x, pointer.y, pointerDownPos.x, pointerDownPos.y);
+    if (dialogMask.visible) return;
+    if (duration < 350 && dist < 10) {
+      targetPos = { x: pointer.worldX, y: pointer.worldY };
+      moving = true;
+    }
+  });
+
+  this.events.on('update', () => {
+    if (moving) {
+      const dx = targetPos.x - player.x;
+      const dy = targetPos.y - player.y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      const speed = 220;
+      if (dist > 4) {
+        player.setVelocity(dx/dist * speed, dy/dist * speed);
+      } else {
+        player.setVelocity(0);
+        moving = false;
+      }
+    } else {
+      player.setVelocity(0);
+    }
+  });
+
+// createThirdScene 里添加
+const baozheng = this.physics.add.sprite(w*0.9, h*0.9, 'baozheng')
+  .setScale(0.10).setDepth(2);
+baozheng.body.setSize(baozheng.width, baozheng.height, true);
+// 点击包拯进入第四幕
+this.physics.add.overlap(player, baozheng, () => {
+  console.log('碰到包拯了');
+  //if (window.localStorage.getItem('hasEnteredScene4') === '1') return;
+  //window.localStorage.setItem('hasEnteredScene4', '1');
+  window.location.href = 'scene4.html';
+});
+
+  // 同事互动
+  npc3.setInteractive();
+  npc3.on('pointerdown', () => {
+    dialogMask.setVisible(true);
+    showDialogBox.call(this);
+    dialogText.setVisible(true);
+    const boxH = Math.max(h * 0.28, w * 0.22, 180);
+    dialogText.setFontSize(Math.round(boxH*0.09)+'px');
+    dialogText.setText('同事：张明，你的坚持让我很佩服！');
+    this.time.delayedCall(1200, () => {
+      dialogText.setVisible(false);
+      dialogMask.setVisible(false);
+      hideDialogBox();
+      unlockCollection('egg1');
+      showAchievementToast(this, '收集解锁：神秘彩蛋');
+    });
+  });
+
+  // 剧情触发
+  let familyBtn, workBtn;
+  let hasPlayed = false;
+
+  this.physics.add.overlap(player, family, () => {
+    if (dialogMask.visible || hasPlayed) return;
+    hasPlayed = true;
+    dialogMask.setVisible(true);
+    showDialogBox.call(this);
+    dialogText.setVisible(true);
+    bigPlayer.setVisible(true);
+    bigFamily.setVisible(true);
+    player.setVisible(false);
+    family.setVisible(false);
+    npc3.setVisible(false);
+    //leader.setVisible(false);
+
+    // 画面元素
+    const boxW = Math.min(w * 0.92, 420);
+    const boxH = Math.max(h * 0.28, w * 0.22, 180);
+    const boxX = w/2 - boxW/2, boxY = h/2 - boxH/2;
+    let awardImg = this.add.image(boxX + boxW*0.78, boxY + boxH*0.22, 'awardMedal')
+      .setScale(0.4).setDepth(16).setAlpha(1).setInteractive();
+
+    // 剧情分步推进
+    let step = 0;
+    const dialogArr = [
+      '家人：你最近很辛苦，大家都很支持你！',
+      '张明：谢谢你们的理解和陪伴。',
+      '你会继续坚守岗位？还是考虑多陪陪家人？',
+      '你要如何选择？'
+    ];
+
+    function tryShowChoice() {
+      dialogMask.setVisible(true);
+      showDialogBox.call(this);
+      dialogText.setVisible(true);
+      dialogText.setText('你要如何选择？');
+      dialogText.setWordWrapWidth(w*0.7);
+
+      familyBtn = this.add.text(w/2-w*0.15, h/2+w*0.08, '陪伴家人', {
+        fontSize: Math.round(w*0.032)+'px', fill: '#fff', backgroundColor: '#00bfff', padding: { x: w*0.025, y: w*0.012 }
+      }).setDepth(18).setInteractive();
+
+      workBtn = this.add.text(w/2+w*0.05, h/2+w*0.08, '坚守岗位', {
+        fontSize: Math.round(w*0.032)+'px', fill: '#fff', backgroundColor: '#00bfff', padding: { x: w*0.025, y: w*0.012 }
+      }).setDepth(18).setInteractive();
+
+      familyBtn.on('pointerdown', () => {
+        window.gameState.stats.reputation += 10;
+        unlockAchievement('family', '家庭温情');
+        unlockCollection('person2');
+        showAchievementToast(this, '成就解锁：家庭温情');
+        familyBtn.destroy(); workBtn.destroy();
+        dialogText.setText('你选择陪伴家人，收获了幸福。');
+        updateStats();
+        this.time.delayedCall(1200, () => {
+          showRichEnding.call(this);
+        });
+      });
+      workBtn.on('pointerdown', () => {
+        window.gameState.stats.integrity += 10;
+        unlockAchievement('honor', '坚守荣誉');
+        workBtn.destroy(); familyBtn.destroy();
+        dialogText.setText('你选择坚守岗位，继续为民服务。');
+        updateStats();
+        this.time.delayedCall(1200, () => {
+          showRichEnding.call(this);
+        });
+      });
+    }
+
+    const nextStep = () => {
+      step++;
+      dialogText.setText('');
+      dialogText.setPosition(w/2, h/2).setOrigin(0.5, 0.5);
+
+      if (step >= 1 && step <= 3) {
+        dialogText.setText(dialogArr[step - 1]);
+        setTimeout(nextStep, 2200);
+      } else {
+        dialogText.setText('你要如何选择？');
+        dialogText.setWordWrapWidth(w*0.7);
+        this.time.delayedCall(1200, () => {
+          dialogText.setVisible(false);
+          dialogMask.setVisible(false);
+          hideDialogBox();
+          tryShowChoice.call(this);
+        });
+      }
+    };
+
+    nextStep();
+
+    dialogText.setWordWrapWidth(w*0.5);
+  });
+
+  function showRichEnding() {
+    // 多轮对话内容
+    const dialogSteps = [
+      { speaker: '同事', text: '张明，你的坚持让我很佩服！', sprite: 'npc3', x: 0 },
+      { speaker: '领导', text: '你是我们单位的榜样，继续加油！', sprite: 'leader', x: 90 },
+      { speaker: '家人', text: '我们一直支持你，辛苦啦！', sprite: 'family_one', x: -30 },
+      { speaker: '张明', text: '谢谢大家的理解和支持，我会继续努力！', sprite: 'player', x: -90 }
+    ];
+    let idx = 0;
+
+    function showEggAndAchievement() {
+      unlockCollection('egg2');
+      showAchievementToast(this, '收集解锁：温情彩蛋');
+    }
+
+    function showSpecialScene() {
+      let specialImg = this.add.image(w/2, h/2, 'family')
+        .setDisplaySize(320, 200).setDepth(30).setAlpha(0);
+      this.tweens.add({ targets: specialImg, alpha: 1, duration: 800 });
+      let tip = this.add.text(w/2, h/2+120, '全家福时刻', {
+        fontSize: '24px', fill: '#1e90ff', fontWeight: 'bold', fontFamily: 'Ma Shan Zheng'
+      }).setOrigin(0.5).setDepth(31).setAlpha(0);
+      this.tweens.add({ targets: tip, alpha: 1, duration: 800, delay: 400 });
+      this.time.delayedCall(1800, () => {
+        specialImg.destroy();
+        tip.destroy();
+        showPlayerChoice.call(this);
+      });
+    }
+
+    function showPlayerChoice() {
+      let btn1 = this.add.text(w/2-80, h/2+80, '发表感言', {
+        fontSize: '20px', fill: '#fff', backgroundColor: '#1e90ff', padding: { x: 18, y: 10 }, borderRadius: 12
+      }).setOrigin(0.5).setDepth(40).setInteractive();
+
+      btn1.on('pointerdown', () => {
+        btn1.destroy(); 
+        dialogText.setVisible(true);
+        dialogText.setText('张明：廉洁是我的信仰，感谢大家的支持！');
+        this.time.delayedCall(1600, () => {
+          dialogText.setVisible(false);
+          goToEnding();
+        });
+      });
+    }
+
+    const goToEnding = () => {
+      this.time.delayedCall(800, () => {
+        window.location.href = 'ending.html';
+      });
+    };
+
+    function nextDialog() {
+      dialogMask.setVisible(true);
+      showDialogBox.call(this);
+      dialogText.setVisible(true);
+      let step = dialogSteps[idx];
+      dialogText.setText(`${step.speaker}：${step.text}`);
+      if (step.sprite) {
+        let avatar = this.add.sprite(w/2+step.x, h/2+60, step.sprite)
+          .setDisplaySize(80, 80).setDepth(15).setVisible(true);
+        this.time.delayedCall(1400, () => avatar.destroy());
+      }
+      idx++;
+      if (idx < dialogSteps.length) {
+        this.time.delayedCall(1600, nextDialog, [], this);
+      } else {
+        this.time.delayedCall(1400, () => {
+          dialogText.setVisible(false);
+          dialogMask.setVisible(false);
+          hideDialogBox();
+          showEggAndAchievement.call(this);
+          this.time.delayedCall(1200, () => {
+            showSpecialScene.call(this);
+          });
+        });
+      }
+    }
+    nextDialog.call(this);
+  }
+}
+</script>
+</body>
+</html>

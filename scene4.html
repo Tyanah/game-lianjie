@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>廉洁文化互动游戏 - 包拯小剧场</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+  <style>
+    body { background: linear-gradient(135deg,#e6f7ff 60%,#b2ebf2 100%); font-family: 'Ma Shan Zheng', cursive; margin: 0; }
+    .main-container {
+      max-width: 440px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 22px;
+      box-shadow: 0 8px 32px #00bfff33;
+      padding: 1.2rem 0.5rem 2rem 0.5rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-sizing: border-box;
+    }
+    .title {
+      font-size: 1.7rem;
+      color: #1e90ff;
+      text-shadow: 2px 2px 0 #00bfff;
+      margin: 1.2rem 0 0.8rem 0;
+      text-align: center;
+      letter-spacing: 2px;
+    }
+    .baozheng-img {
+      width: 120px;
+      margin: 1.2rem auto 0.8rem auto;
+      display: block;
+      border-radius: 50%;
+      box-shadow: 0 4px 16px #00bfff33;
+      border: 3px solid #1e90ff22;
+      background: #e0f7fa;
+    }
+    .dialog-box {
+      background: linear-gradient(135deg,#e0f7fa 60%,#b2ebf2 100%);
+      border-radius: 18px;
+      padding: 1.4rem 1.1rem;
+      font-size: 1.15rem;
+      color: #1e90ff;
+      margin-bottom: 1.2rem;
+      text-align: center;
+      box-shadow: 0 4px 16px #00bfff33;
+      min-height: 90px;
+      transition: box-shadow 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .dialog-box::before {
+      content: "";
+      position: absolute;
+      left: 10px; top: 10px;
+      width: 36px; height: 36px;
+      background: url('assets/icons/dialog.png') no-repeat center/contain;
+      opacity: 0.13;
+      pointer-events: none;
+    }
+    .btn {
+      display: inline-block;
+      padding: 0.5rem 1.4rem;
+      background: linear-gradient(90deg,#00bfff,#1e90ff);
+      color: white;
+      border: none;
+      border-radius: 16px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      box-shadow: 2px 2px 0 #00bfff44;
+      margin-top: 1.2rem;
+      margin-right: 0.5rem;
+      margin-bottom: 0.5rem;
+      transition: all 0.2s;
+      outline: none;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn:hover { filter: brightness(1.08); box-shadow: 0 4px 12px #00bfff55; }
+    .footer { text-align: center; color: #888; margin-top: 2rem; font-size: 0.95rem; }
+    .comic-img {
+      width: 90%;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px #00bfff44;
+      margin: 1rem 0;
+      border: 2px solid #b2ebf2;
+      background: #f5fafd;
+    }
+    .quiz-btn {
+      background: linear-gradient(90deg,#f7971e,#ffd200);
+      color: #fff;
+      margin: 0.5rem 0.3rem 0 0.3rem;
+      font-size: 1rem;
+      border-radius: 12px;
+      padding: 0.4rem 1.1rem;
+      box-shadow: 1px 1px 0 #ffd20044;
+    }
+    .quiz-btn:active { transform: scale(0.97);}
+    .section-title {
+      color: #00bfae;
+      font-weight: bold;
+      font-size: 1.15rem;
+      margin-bottom: 0.5rem;
+      letter-spacing: 1px;
+    }
+    @media (max-width: 500px) {
+      .main-container { max-width: 100vw; border-radius: 0; }
+      .baozheng-img { width: 90px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="main-container">
+    <div class="title">包拯小剧场</div>
+    <img src="assets/sprites/baozheng.png" alt="包拯" class="baozheng-img">
+    <div class="dialog-box" id="dialogBox">
+      包拯：少年，你为何而来？<br>
+      <span style="font-size:0.95rem;color:#888;">（点击下方按钮与包拯互动）</span>
+    </div>
+    <div style="text-align:center;">
+     <!-- ...前略... -->
+      <button class="btn" id="btnInteract">请教包拯</button>
+      <button class="btn" id="btnBack" style="display:none;">返回第三幕</button>
+      <button class="btn" id="btnKnowledge" style="background:linear-gradient(90deg,#43e97b,#38f9d7);">廉洁知识库</button>
+      <button class="btn" id="btnQuotes" style="background:linear-gradient(90deg,#fa709a,#fee140);">廉洁名言</button>
+      <button class="btn" id="btnStories" style="background:linear-gradient(90deg,#30cfd0,#330867);">历史故事</button>
+      <button class="btn" id="btnQuiz" style="background:linear-gradient(90deg,#f7971e,#ffd200);">廉洁趣问</button>
+    </div>
+    <div class="footer">© 2025 廉洁文化互动游戏</div>
+  </div>
+<script>
+  let step = 0;
+  const dialogArr = [
+    "你：包大人，我在坚守廉洁的路上遇到了困惑。",
+    "包拯：人生在世，最难得的是一颗清白之心。你可知“廉”字为何从“兼”从“贝”？",
+    "你：请包大人指教！",
+    "包拯：‘兼’者，兼顾公私；‘贝’者，财物也。廉者，能兼顾公私而不贪财。",
+    "你：原来如此。那在现实中如何做到廉洁呢？",
+    "包拯：廉洁需自律，勿以恶小而为之，勿以善小而不为。遇到诱惑时，想想初心与责任。",
+    "你：如果身边有人做了不廉洁的事，我该怎么办？",
+    "包拯：见不正之事，勇于劝诫或报告。正气存内，邪不可侵。记住：‘勿以权谋私，勿以利忘义’。",
+    "你：包大人，您有座右铭吗？",
+    "包拯：‘清心为治本，直道是身谋。’愿你以此自勉，做一个堂堂正正的人。",
+    "你：谢谢包大人！我会铭记于心。",
+    "包拯：去吧，愿你一生清白坦荡，成为他人的榜样。"
+  ];
+  const dialogBox = document.getElementById('dialogBox');
+  const btnInteract = document.getElementById('btnInteract');
+  const btnBack = document.getElementById('btnBack');
+  const btnKnowledge = document.getElementById('btnKnowledge');
+  const btnQuotes = document.getElementById('btnQuotes');
+  const btnStories = document.getElementById('btnStories');
+  const btnQuiz = document.getElementById('btnQuiz');
+
+btnInteract.onclick = function() {
+  // 如果对话已结束，重置 step 并恢复初始内容
+  if (step >= dialogArr.length - 1) {
+    step = 0;
+    btnInteract.textContent = "请教包拯";
+    dialogBox.innerHTML = `包拯：少年，你为何而来？<br>
+      <span style="font-size:0.95rem;color:#888;">（点击下方按钮与包拯互动）</span>`;
+    return;
+  }
+  step++;
+  if (step === 1) {
+    btnInteract.style.display = "none";
+    let nextBtn = document.createElement("button");
+    nextBtn.className = "btn";
+    nextBtn.id = "btnContinue";
+    nextBtn.textContent = "继续对话";
+    btnInteract.parentNode.insertBefore(nextBtn, btnInteract.nextSibling);
+
+    nextBtn.onclick = function() {
+      step++;
+      showDialogStep(nextBtn);
+    };
+    showDialogStep(nextBtn);
+  } else {
+    showDialogStep(btnInteract);
+  }
+};
+
+function showDialogStep(btn) {
+  dialogBox.innerHTML = dialogArr[step];
+  if (step === dialogArr.length - 1) {
+    btn.textContent = "感谢包拯";
+  }
+  if (step === 3) {
+    dialogBox.innerHTML += "<br><span style='color:#009688;font-size:0.98rem;'>【知识点】<br>“廉”字的结构寓意着公私分明、清正不贪。</span>";
+  }
+  if (step === 5) {
+    dialogBox.innerHTML += "<br><span style='color:#009688;font-size:0.98rem;'>【廉洁小贴士】<br>廉洁不仅仅是拒绝贿赂，更是日常生活中自律自省。</span>";
+  }
+  if (step === 7) {
+    dialogBox.innerHTML += "<br><span style='color:#009688;font-size:0.98rem;'>【案例分享】<br>古人云：“见善如不及，见不善如探汤。”勇于指出身边的不正之风，是对集体的负责。</span>";
+  }
+  if (step >= dialogArr.length - 1) {
+    btn.style.display = "none";
+    btnBack.style.display = "inline-block";
+  }
+}
+
+  btnBack.onclick = function() {
+    window.location.href = "scene3.html";
+  };
+
+  btnKnowledge.onclick = function() {
+    dialogBox.innerHTML = `
+      <div class="section-title">廉洁知识库</div>
+      1. 廉洁是中华民族的传统美德，强调公私分明、诚实守信。<br>
+      2. 廉洁不仅仅是拒绝贿赂，更是日常生活中自律自省。<br>
+      3. “廉”字从“兼”从“贝”，寓意兼顾公私、清正不贪。<br>
+      4. 廉洁文化要求我们在面对诱惑时，能够坚守底线，不忘初心。<br>
+      5. 廉洁建设是社会和谐、国家长治久安的重要保障。<br>
+      6. 现代社会中，廉洁还包括网络诚信、学术诚信等新内容。
+    `;
+    btnInteract.style.display = "inline-block";
+    btnBack.style.display = "none";
+  };
+
+  btnQuotes.onclick = function() {
+    dialogBox.innerHTML = `
+      <div class="section-title">廉洁名言</div>
+      <span style="color:#1e90ff;">“公生明，廉生威。”</span><br>
+      <span style="color:#1e90ff;">“一身正气上青天，两袖清风朝紫阳。”</span><br>
+      <span style="color:#1e90ff;">“勿以恶小而为之，勿以善小而不为。”</span><br>
+      <span style="color:#1e90ff;">“清正在德，廉洁在志。”</span><br>
+      <span style="color:#1e90ff;">“以铜为镜，可以正衣冠；以人为镜，可以明得失。”</span><br>
+      <span style="color:#1e90ff;">“廉者，政之本也。”</span>
+    `;
+    btnInteract.style.display = "inline-block";
+    btnBack.style.display = "none";
+  };
+
+  btnStories.onclick = function() {
+    dialogBox.innerHTML = `
+      <div class="section-title">历史故事</div>
+      <b>包拯铁面无私：</b>包拯任开封府尹时，铁面无私，秉公断案，深受百姓爱戴，被誉为“包青天”。<br>
+      <b>海瑞拒贿：</b>明代海瑞为官清廉，曾拒绝权贵送礼，宁可清贫也不受贿赂。<br>
+      <b>于谦两袖清风：</b>明代于谦一生清正廉洁，家中清贫，百姓称其“两袖清风”。<br>
+      <b>林则徐严于律己：</b>林则徐禁烟有功，生活简朴，严于律己，深得民心。<br>
+      <b>杨震“四知拒金”：</b>东汉杨震拒绝受贿，提出“天知、地知、你知、我知”，成为廉洁典范。
+    `;
+    btnInteract.style.display = "inline-block";
+    btnBack.style.display = "none";
+  };
+
+  btnQuiz.onclick = function() {
+  dialogBox.innerHTML = `
+    <div class="section-title">廉洁趣味问答</div>
+    <span style="color:#1e90ff;">Q：包拯为何被称为“包青天”？</span><br>
+    <button class="quiz-btn" onclick="showQuizAnswer(1)">A. 因为他皮肤黝黑</button>
+    <button class="quiz-btn" onclick="showQuizAnswer(2)">B. 因为他公正无私</button>
+    <div id="quizAnswer" style="margin-top:1rem;"></div>
+    <hr style="margin:1.2rem 0;">
+    <span style="color:#1e90ff;">Q：下列哪种行为最能体现“廉洁自律”？</span><br>
+    <button class="quiz-btn" onclick="showQuizAnswer(5)">A. 拒绝同事请吃饭并如实报销</button>
+    <button class="quiz-btn" onclick="showQuizAnswer(6)">B. 上班时间刷短视频</button>
+    <div id="quizAnswer2" style="margin-top:1rem;"></div>
+  `;
+  btnInteract.style.display = "inline-block";
+  btnBack.style.display = "none";
+};
+
+window.showQuizAnswer = function(opt) {
+  if(opt==2){
+    document.getElementById('quizAnswer').innerHTML = "<span style='color:green;'>答对了！包拯因公正无私、铁面无私被称为“包青天”。</span>";
+  }else if(opt==1){
+    document.getElementById('quizAnswer').innerHTML = "<span style='color:red;'>答错了，其实是因为他公正无私！</span>";
+  }else if(opt==5){
+    document.getElementById('quizAnswer2').innerHTML = "<span style='color:green;'>答对了！拒绝请吃饭并如实报销，体现了廉洁自律。</span>";
+  }else if(opt==6){
+    document.getElementById('quizAnswer2').innerHTML = "<span style='color:red;'>答错了，上班时间应专心工作，遵守纪律。</span>";
+  }
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <script src="state.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>廉洁文化互动漫画 - 结局</title>
+  <link href="https://s2.ssl.qhres2.com/static/56662140ef7d5d03.css" rel="stylesheet">
+  <style>
+    body { font-family: 'Ma Shan Zheng', cursive; background: #f0fff8; margin: 0; }
+    .main-container { max-width: 900px; margin: 2rem auto; background: #fff; border-radius: 30px; box-shadow: 0 8px 32px #00bfff33; padding: 2rem; }
+    .ending-title { font-size: 2.5rem; text-align: center; color: #1e90ff; text-shadow: 2px 2px 0 #00bfff; margin-bottom: 1.5rem; }
+    .ending-panel { background: #e6f7ff; border-radius: 20px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 2px 8px #00bfff22; }
+    .stats-bar { text-align: center; margin: 1.5rem 0 0.5rem 0; }
+    .stats-bar span { display: inline-block; margin: 0 1.2rem; font-size: 1.1rem; color: #1e90ff; }
+    .ach-list, .col-list { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin: 1rem 0; }
+    .ach-item, .col-item { background: #fff; border-radius: 12px; padding: 0.7rem 1.2rem; font-size: 1.1rem; color: #1e90ff; box-shadow: 0 2px 8px #00bfff22; }
+    .btn-main { display: inline-block; margin: 1.2rem 1rem 0 1rem; padding: 0.8rem 2.2rem; font-size: 1.3rem; background: linear-gradient(90deg,#00bfff,#1e90ff); color: #fff; border: none; border-radius: 22px; cursor: pointer; box-shadow: 3px 3px 0 #00bfff44; transition: all 0.2s; }
+    .btn-main:hover { transform: scale(1.04); box-shadow: 5px 5px 0 #00bfff66; }
+    .footer { text-align: center; color: #888; margin-top: 2rem; font-size: 1rem; }
+    @media (max-width: 600px) {
+      .main-container { max-width: 99vw; padding: 1rem; }
+      .ending-title { font-size: 2rem; }
+      .btn-main { font-size: 1.1rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="main-container">
+  <h1 class="ending-title">结局回顾</h1>
+  <div class="ending-panel" id="endingPanel">
+    <!-- 结局内容由JS自动填充 -->
+  </div>
+  <div class="stats-bar" id="statsBar"></div>
+  <div>
+    <div style="font-weight:bold;color:#1e90ff;">成就解锁：</div>
+    <div class="ach-list" id="achList"></div>
+    <div style="font-weight:bold;color:#1e90ff;">收集要素：</div>
+    <div class="col-list" id="colList"></div>
+  </div>
+  <div style="text-align:center;">
+    <button class="btn-main" onclick="window.location.href='index.html'">返回首页</button>
+    <button class="btn-main" onclick="window.resetState()">重玩体验</button>
+    <button class="btn-main" onclick="shareEnding()">分享结局</button>
+  </div>
+  <div class="footer">
+    <span>© 2025 廉洁文化互动漫画项目</span>
+  </div>
+</div>
+<script type="module">
+import { achievementList } from './modules/achievements.js';
+import { collectionList } from './modules/collection.js';
+window.loadState && window.loadState();
+function renderEnding() {
+  const stats = window.gameState.stats;
+  const achs = Object.keys(window.gameState.achievements || {});
+  const cols = window.gameState.collection || [];
+  let ending = '';
+  if (stats.integrity >= 30 && stats.reputation >= 20) {
+    ending = '你坚守底线，赢得了群众和组织的认可，被评为“廉洁楷模”。';
+  } else if (stats.integrity < 10) {
+    ending = '你未能抵挡住诱惑，最终受到处分，留下遗憾。';
+  } else if (stats.courage >= 20) {
+    ending = '你勇于担当，成为同事们的榜样。';
+  } else {
+    ending = '你的人生仍在继续，未来还有更多选择等着你。';
+  }
+  document.getElementById('endingPanel').innerHTML = `<div style="font-size:1.3rem;color:#333;">${ending}</div>`;
+  document.getElementById('statsBar').innerHTML =
+    `<span>廉洁值：${stats.integrity}</span>
+     <span>声望：${stats.reputation}</span>
+     <span>智慧：${stats.wisdom}</span>
+     <span>勇气：${stats.courage}</span>`;
+   document.getElementById('achList').innerHTML = achievementList.map(a =>
+    `<div class="ach-item" style="opacity:${achs.includes(a.key)?1:0.3}">${a.name}</div>`
+  ).join('');
+  document.getElementById('colList').innerHTML = collectionList.map(c =>
+    `<div class="col-item" style="opacity:${cols.includes(c.key)?1:0.3}">${c.name}</div>`
+  ).join('');
+}
+renderEnding();
+
+function shareEnding() {
+  const stats = window.gameState.stats;
+  const canvas = document.createElement('canvas');
+  canvas.width = 600;
+  canvas.height = 340;
+  const ctx = canvas.getContext('2d');
+
+  // 背景
+  ctx.fillStyle = '#e6f7ff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+if (window._bgm) {
+  window._bgm.stop();
+  window._bgm = null;
+}
+  // 标题
+  ctx.fillStyle = '#1e90ff';
+  ctx.font = 'bold 32px "Ma Shan Zheng", cursive';
+  ctx.textAlign = 'center';
+  ctx.fillText('廉洁文化互动游戏结局', canvas.width / 2, 60);
+
+  // 结局描述
+  ctx.font = '20px "Ma Shan Zheng", cursive';
+  ctx.fillStyle = '#333';
+  let ending = '';
+  if (stats.integrity >= 30 && stats.reputation >= 20) {
+    ending = '你坚守底线，赢得了群众和组织的认可，被评为“廉洁楷模”。';
+  } else if (stats.integrity < 10) {
+    ending = '你未能抵挡住诱惑，最终受到处分，留下遗憾。';
+  } else if (stats.courage >= 20) {
+    ending = '你勇于担当，成为同事们的榜样。';
+  } else {
+    ending = '你的人生仍在继续，未来还有更多选择等着你。';
+  }
+  ctx.fillText(ending, canvas.width / 2, 110);
+
+  // 属性
+  ctx.font = '18px "Ma Shan Zheng", cursive';
+  ctx.fillStyle = '#1e90ff';
+  ctx.fillText(`廉洁值：${stats.integrity}   声望：${stats.reputation}   智慧：${stats.wisdom}   勇气：${stats.courage}`, canvas.width / 2, 160);
+
+  // 时间
+  ctx.font = '16px "Ma Shan Zheng", cursive';
+  ctx.fillStyle = '#888';
+  ctx.fillText(`达成时间：${new Date().toLocaleString()}`, canvas.width / 2, 200);
+
+  // 二维码/Logo（可选）
+  // ctx.drawImage(logoImg, x, y, w, h);
+
+  // 底部
+  ctx.font = '18px "Ma Shan Zheng", cursive';
+  ctx.fillStyle = '#00bfff';
+  ctx.fillText('快来体验你的选择吧！', canvas.width / 2, 260);
+
+  // 项目名
+  ctx.font = '16px "Ma Shan Zheng", cursive';
+  ctx.fillStyle = '#aaa';
+  ctx.fillText('廉洁文化互动漫画', canvas.width / 2, 310);
+
+  // 导出图片
+  canvas.toBlob(blob => {
+    if (navigator.canShare && navigator.canShare({ files: [new File([blob], "ending.png", {type: blob.type})] })) {
+      const file = new File([blob], "ending.png", {type: blob.type});
+      navigator.share({
+        files: [file],
+        title: '廉洁文化互动漫画结局',
+        text: '我的结局卡片，快来体验你的选择吧！'
+      });
+    } else {
+      // 兼容：弹窗展示图片并可右键保存
+      const url = URL.createObjectURL(blob);
+      const img = new Image();
+      img.src = url;
+      img.style = 'max-width:90vw;max-height:80vh;display:block;margin:2rem auto;border-radius:18px;box-shadow:0 4px 24px #00bfff44;';
+      const mask = document.createElement('div');
+      mask.style = 'position:fixed;left:0;top:0;width:100vw;height:100vh;z-index:9999;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;';
+      mask.onclick = () => document.body.removeChild(mask);
+      mask.appendChild(img);
+      document.body.appendChild(mask);
+    }
+  });
+}
+window.shareEnding = shareEnding;
+</script>
+</body>
+</html>

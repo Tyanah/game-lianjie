@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <script src="state.js"></script>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>廉洁文化互动游戏 - 首页</title>
+  <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+  <link href="https://s2.ssl.qhres2.com/static/56662140ef7d5d03.css" rel="stylesheet">
+  <style>
+    html, body { height: 100%; margin: 0; padding: 0; }
+    body { font-family: 'Ma Shan Zheng', cursive; background: #e6f7ff; margin: 0; min-height: 100vh; }
+    .main-container {
+      max-width: 480px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 24px;
+      box-shadow: 0 8px 32px #00bfff33;
+      padding: 1.2rem 0.8rem 2.2rem 0.8rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+    }
+    .sketch-title {
+      font-size: 2.2rem;
+      text-align: center;
+      color: #1e90ff;
+      text-shadow: 2px 2px 0 #00bfff;
+      margin-bottom: 1.2rem;
+      margin-top: 1.2rem;
+    }
+    .menu-btn {
+      display: block;
+      width: 96%;
+      max-width: 340px;
+      margin: 1.1rem auto;
+      padding: 1.1rem 0;
+      font-size: 1.2rem;
+      background: linear-gradient(90deg,#00bfff,#1e90ff);
+      color: #fff;
+      border: none;
+      border-radius: 22px;
+      cursor: pointer;
+      box-shadow: 3px 3px 0 #00bfff44;
+      transition: all 0.2s;
+      touch-action: manipulation;
+    }
+    .menu-btn:active { transform: scale(0.97); }
+    .stats-bar { text-align: center; margin: 1.2rem 0 0.5rem 0; }
+    .stats-bar span { display: inline-block; margin: 0 0.7rem; font-size: 1rem; color: #1e90ff; }
+    .footer { text-align: center; color: #888; margin-top: 2rem; font-size: 0.95rem; }
+    .avatar { width: 54px; height: 54px; border-radius: 50%; object-fit: cover; border: 2px solid #1e90ff; margin: 0 8px; vertical-align: middle; }
+    .player-bar { text-align: center; margin-bottom: 1rem; }
+    .player-bar input { font-size: 1.1rem; border-radius: 8px; border: 1px solid #bbb; padding: 2px 8px; width: 110px; }
+    .reset-btn { background: #fff; color: #1e90ff; border: 1px solid #1e90ff; border-radius: 12px; padding: 0.4rem 1.2rem; margin-top: 1rem; cursor: pointer; }
+    .reset-btn:active { background: #e6f7ff; }
+    @media (max-width: 600px) {
+      .main-container { max-width: 99vw; padding: 0.5rem 0.2rem 1.2rem 0.2rem; }
+      .sketch-title { font-size: 1.4rem; }
+      .menu-btn { font-size: 1rem; padding: 0.8rem 0; }
+      .avatar { width: 40px; height: 40px; }
+      .player-bar input { width: 80px; }
+    }
+    @keyframes spin { 0%{transform:rotate(0deg);} 100%{transform:rotate(360deg);} }
+    @keyframes dotFade { 0%,80%,100%{opacity:0;} 40%{opacity:1;} }
+    .loading-spinner-outer {
+      position:relative;width:64px;height:64px;margin-bottom:1.5rem;
+    }
+    .loading-spinner {
+      border:8px solid #b3e0ff;
+      border-top:8px solid #1e90ff;
+      border-radius:50%;
+      width:64px;height:64px;
+      animation:spin 1s linear infinite;
+    }
+    .loading-text-ani .dot:nth-child(1) { animation: dotFade 1.2s infinite 0s; }
+    .loading-text-ani .dot:nth-child(2) { animation: dotFade 1.2s infinite 0.3s; }
+    .loading-text-ani .dot:nth-child(3) { animation: dotFade 1.2s infinite 0.6s; }
+  </style>
+</head>
+<body>
+<div id="loadingMask" style="position:fixed;left:0;top:0;width:100vw;height:100vh;z-index:9999;background:linear-gradient(135deg,#e6f7ff 60%,#b3e0ff 100%);display:flex;align-items:center;justify-content:center;flex-direction:column;">
+  <div class="loading-spinner-outer">
+    <div class="loading-spinner"></div>
+    <img src="assets/avatar1.png" alt="logo" style="width:48px;height:48px;position:absolute;left:8px;top:8px;border-radius:50%;box-shadow:0 2px 8px #1e90ff44;">
+  </div>
+  <div class="loading-text-ani" style="font-size:1.4rem;color:#1e90ff;font-family:'Ma Shan Zheng',cursive;letter-spacing:2px;margin-top:1.2rem;">
+    正在加载，请稍候<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
+  </div>
+</div>
+
+<div class="main-container">
+  <h1 class="sketch-title">廉洁文化互动游戏</h1>
+  <div class="player-bar">
+    <img id="avatarImg" class="avatar" src="assets/avatar1.png" alt="头像">
+    <input id="playerNameInput" type="text" maxlength="8" placeholder="输入昵称" value="">
+    <button class="menu-btn" style="width:120px;padding:0.5rem 0;font-size:1rem;" onclick="changeAvatar()">换头像</button>
+  </div>
+  <div class="stats-bar" id="statsBar">
+    <!-- 属性条会由JS自动填充 -->
+  </div>
+  <button class="menu-btn" onclick="window.location.href='scene1.html'">开启第一幕：抉择之门</button>
+  <button class="menu-btn" id="btnAchievements">成就面板</button>
+  <button class="menu-btn" id="btnRank">排行榜</button>
+  <button class="menu-btn" id="btnCollection">收集要素</button>
+  <button class="menu-btn" id="btnHelp">帮助/辅助功能</button>
+  <button class="reset-btn" onclick="window.resetState()">重置存档</button>
+  <div class="footer">
+    <span>© 2025 廉洁文化互动游戏</span>
+  </div>
+</div>
+
+<script type="module">
+import { achievementList } from './modules/achievements.js';
+import { showAchievementsPanelForWeb } from './modules/achievements.js';
+import { showLocalRankPanelForWeb } from './modules/social.js';
+import { showCollectionPanelForWeb, showAssistPanelForWeb } from './modules/collection.js';
+window.loadState && window.loadState();
+document.getElementById('btnAchievements').onclick = showAchievementsPanelForWeb;
+document.getElementById('btnRank').onclick = showLocalRankPanelForWeb;
+document.getElementById('btnCollection').onclick = showCollectionPanelForWeb;
+document.getElementById('btnHelp').onclick = showAssistPanelForWeb;
+
+// 属性条渲染
+function renderStatsBar() {
+  const stats = window.gameState.stats;
+  document.getElementById('statsBar').innerHTML =
+    `<span>廉洁值：${stats.integrity}</span>
+     <span>声望：${stats.reputation}</span>
+     <span>智慧：${stats.wisdom}</span>
+     <span>勇气：${stats.courage}</span>`;
+}
+renderStatsBar();
+
+// 玩家信息渲染
+function renderPlayerBar() {
+  const player = window.gameState.player || { name: '', avatar: 'assets/avatar1.png' };
+  document.getElementById('playerNameInput').value = player.name || '';
+  document.getElementById('avatarImg').src = player.avatar || 'assets/avatar1.png';
+}
+renderPlayerBar();
+
+// 玩家昵称和头像修改
+document.getElementById('playerNameInput').onchange = function() {
+  window.gameState.player = window.gameState.player || {};
+  window.gameState.player.name = this.value.trim().slice(0,8);
+  window.saveState && window.saveState();
+};
+window.changeAvatar = function() {
+  let idx = 1;
+  if (window.gameState.player && window.gameState.player.avatar) {
+    let m = window.gameState.player.avatar.match(/avatar(\d+)/);
+    idx = m ? parseInt(m[1]) + 1 : 2;
+    if (idx > 7) {
+      alert('请在1~7号头像间进行选择！');
+      idx = 1;
+    }
+  }
+  window.gameState.player = window.gameState.player || {};
+  window.gameState.player.avatar = `assets/avatar${idx}.png`;
+  window.saveState && window.saveState();
+  renderPlayerBar();
+};
+
+window.addEventListener('DOMContentLoaded', function() {
+  setTimeout(function() {
+    const mask = document.getElementById('loadingMask');
+    if(mask) mask.remove();
+  }, 600); // 加载动画显示更久
+});
+
+</script>
+</body>
+</html>
