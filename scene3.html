@@ -180,6 +180,10 @@ this.load.image('baozheng', 'assets/sprites/baozheng.png');
 }
 
 function createThirdScene() {
+  if (!this.sound.get('bgm')) {
+  let bgm = this.sound.add('bgm', { loop: true, volume: 0.02 });
+  bgm.play();
+}
   const w = this.cameras.main.width;
   const h = this.cameras.main.height;
   let base = Math.min(w, h, 420) * 0.92;
