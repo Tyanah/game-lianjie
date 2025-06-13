@@ -191,26 +191,33 @@ window.initGame = initGame;
 
 function preload() {
 
-    // 添加提示文字
-  const tipText = this.add.text(200, 210, "第一次加载稍慢一些，请耐心等待！", {
+      // 获取画布宽度
+  const width = this.sys.game.config.width;
+  // 进度条参数
+  const boxW = 600, boxH = 40;
+  const boxX = (width - boxW) / 2;
+  const boxY = 245;
+
+  // 居中显示提示文字
+  const tipText = this.add.text(width / 2, 210, "第一次加载稍慢一些，请耐心等待！", {
     font: "20px Microsoft YaHei, Arial, sans-serif",
     fill: "#0078d7",
     fontStyle: "bold"
   });
+  tipText.setOrigin(0.5, 0.5);
 
-  // 美化进度条
+  // 居中美化进度条
   var progressBox = this.add.graphics();
   progressBox.fillStyle(0xffffff, 0.8);
-  progressBox.fillRoundedRect(95, 245, 610, 40, 12);
+  progressBox.fillRoundedRect(boxX, boxY, boxW, boxH, 12);
   progressBox.lineStyle(3, 0x2196f3, 1);
-  progressBox.strokeRoundedRect(95, 245, 610, 40, 12);
+  progressBox.strokeRoundedRect(boxX, boxY, boxW, boxH, 12);
 
   var progressBar = this.add.graphics();
 
   this.load.on('progress', function (value) {
     progressBar.clear();
-    // 渐变色进度条
-    var width = 600 * value;
+    var widthBar = boxW * value;
     var color = Phaser.Display.Color.Interpolate.ColorWithColor(
       new Phaser.Display.Color(33, 150, 243),
       new Phaser.Display.Color(67, 233, 123),
@@ -219,7 +226,7 @@ function preload() {
     );
     var hex = Phaser.Display.Color.GetColor(color.r, color.g, color.b);
     progressBar.fillStyle(hex, 1);
-    progressBar.fillRoundedRect(100, 250, width, 30, 8);
+    progressBar.fillRoundedRect(boxX + 5, boxY + 5, widthBar - 10 > 0 ? widthBar - 10 : 0, boxH - 10, 8);
   });
 
   this.load.on('complete', function () {
