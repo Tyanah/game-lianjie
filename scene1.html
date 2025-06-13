@@ -226,7 +226,13 @@ function preload() {
     );
     var hex = Phaser.Display.Color.GetColor(color.r, color.g, color.b);
     progressBar.fillStyle(hex, 1);
-    progressBar.fillRoundedRect(boxX + 5, boxY + 5, widthBar - 10 > 0 ? widthBar - 10 : 0, boxH - 10, 8);
+        progressBar.fillRoundedRect(
+  boxX + 4,
+  boxY + 4,
+  (widthBar - 8) > 0 ? (widthBar - 8) : 0,
+  boxH - 8,
+  6
+);
   });
 
   this.load.on('complete', function () {
